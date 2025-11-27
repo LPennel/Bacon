@@ -8,11 +8,6 @@ def neighbor_key(movie, inverted_dict):
         if key == movie:
             return value
 
-    # df_temp = df_bfs[df_bfs["primaryTitle"].apply(lambda titles: movie in titles)]
-    # numpy_array = df_temp["primaryName"].to_numpy()
-    # return numpy_array.tolist()
-
-
 # Define the BFS function
 def bfs(tree, start, target):
     visited = set()  # List to keep track of visited nodes
@@ -25,6 +20,7 @@ def bfs(tree, start, target):
 
     while queue:  # While there are still nodes to process
         node, path = queue.popleft()  # Dequeue a node from the front of the queue
+        print(node)
         visited.add(node)
 
         # Enqueue all unvisited neighbors (children) of the current node
@@ -75,6 +71,6 @@ for original_key, value_list in bfs_dict.items():
 
 # print(inverted_dict["Footloose"])
 
-path = bfs(bfs_dict, "Kevin Bacon", "Marga Legal")
+path = bfs(bfs_dict, "Kevin Bacon", "Hugh Jackman")
 
 print(path)
