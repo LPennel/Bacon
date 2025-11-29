@@ -23,13 +23,13 @@ for original_key, value_list in bfs_dict.items():
 
 app = Dash()
 
-# Requires Dash 2.17.0 or later
 app.layout = html.Div([
-    html.Div(children='6 Degrees of Kevin Bacon'),
+    html.H1(children='6 Degrees of Kevin Bacon'),
     html.Hr(),
     dcc.Dropdown(value = 'Kevin Bacon', id='start-dropdown'),
     dcc.Dropdown(value = 'Hugh Jackman', id='target-dropdown'),
-    html.Div(id='dd-output-container')
+    html.Hr(),
+    html.H1(id='dd-output-container')
     ])
 
 @callback(
@@ -44,17 +44,11 @@ def update_start_options(search, current_value):
             return [{"label": current_value, "value": current_value}]
         return []
     
-    matches = df_bfs[
-        df_bfs["primaryName"].str.contains(search, case=False, na=False)
-    ].head(50)
-
-    #if not matches[matches['primaryName'].str.contains(current_value)]:
-        #new_row = pd.Series({'primaryName':current_value})
-        #matches = pd.concat([matches, pd.DataFrame([new_row])], ignore_index=True)
+    matches = [key for key in bfs_dict.keys() if search in key and len(matches) <= 50]
 
     return [
-        {"label": name, "value": name}
-        for name in matches["primaryName"]
+        {"label": match, "value": match}
+        for match in matches
     ]
 
 @callback(
@@ -64,22 +58,18 @@ def update_start_options(search, current_value):
 )
 def update_target_options(search, current_value):
 
+    matches = []
+
     if not search or len(search) < 3:
         if current_value:
             return [{"label": current_value, "value": current_value}]
         return []
-    
-    matches = df_bfs[
-        df_bfs["primaryName"].str.contains(search, case=False, na=False)
-    ].head(50)
-    
-    #if current_value and current_value not in matches:
-        #new_row = pd.Series({'primaryName':current_value})
-        #matches = pd.concat([matches, pd.DataFrame([new_row])], ignore_index=True)
+
+    matches = [key for key in bfs_dict.keys() if search in key and len(matches) <= 50]
 
     return [
-        {"label": name, "value": name}
-        for name in matches["primaryName"]
+        {"label": match, "value": match}
+        for match in matches
     ]
 
 
@@ -98,21 +88,19 @@ def neighbor_key(movie, inverted_dict):
         if key == movie:
             return value
 
-# Define the BFS function
 def bfs(tree, inverted_tree, start, target):
-    visited = set()  # List to keep track of visited nodes
+    visited = set()
     movies_visited = set()
-    queue = deque([(start, [start])])  # Initialize the queue with the starting node
+    queue = deque([(start, [start])])
     parent_node = {start: None}
 
     if start == target:
         return [start]
 
-    while queue:  # While there are still nodes to process
-        node, path = queue.popleft()  # Dequeue a node from the front of the queue
+    while queue:
+        node, path = queue.popleft()
         visited.add(node)
 
-        # Enqueue all unvisited neighbors (children) of the current node
         for movie in tree[node]:
             if movie not in movies_visited:
                 movies_visited.add(movie)
